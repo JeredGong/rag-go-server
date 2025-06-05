@@ -124,7 +124,7 @@ func ragHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, RagResponse{Status: "error", Data: map[string]interface{}{"message": err.Error()}})
 		return
 	}
-
+	log.Println("获取用户问题的嵌入向量成功:", embedding)
 	// 搜索 Qdrant 数据库
 	similarCourses, err := searchQdrant(embedding, req.Catagory)
 	if err != nil {
@@ -132,7 +132,7 @@ func ragHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, RagResponse{Status: "error", Data: map[string]interface{}{"message": err.Error()}})
 		return
 	}
-
+	log.Printf("找到 %d 个相似课程", len(similarCourses))
 	// 调用 OpenAI 或 DeepSeek 生成回答
 	llmOutput, err := callOpenAI(req.UserQuestion, similarCourses)
 	if err != nil {
@@ -140,7 +140,7 @@ func ragHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, RagResponse{Status: "error", Data: map[string]interface{}{"message": err.Error()}})
 		return
 	}
-
+	log.Println("LLM 调用成功，生成回答:", llmOutput)
 	// 返回最终的响应
 	c.JSON(http.StatusOK, RagResponse{
 		Status: "success",
