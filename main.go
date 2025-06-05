@@ -96,6 +96,7 @@ func ragHandler(c *gin.Context) {
 	fingerprint := c.GetHeader("X-Device-Fingerprint")
 	// 如果这个头不存在,若不存在则返回错误
 	if fingerprint == "" {
+		log.Println("缺少设备指纹")
 		c.JSON(http.StatusBadRequest, RagResponse{Status: "error", Data: map[string]interface{}{"message": "缺少设备指纹"}})
 		return
 	}
@@ -103,6 +104,7 @@ func ragHandler(c *gin.Context) {
 	if _, err := CheckFingerprintExists(fingerprint); err != nil {
 		// 设置指纹访问限制为 10 次
 		if err := SetFingerprintLimit(fingerprint, 10); err != nil {
+			log.Println("设置访问限制失败:", err)
 			c.JSON(http.StatusInternalServerError, RagResponse{Status: "error", Data: map[string]interface{}{"message": "设置访问限制失败"}})
 			return
 		}
@@ -112,6 +114,7 @@ func ragHandler(c *gin.Context) {
 	}
 	// 检查指纹访问限制
 	if _, err := DecrementFingerprintLimit(fingerprint); err != nil {
+		log.Println("访问已达上限", err)
 		c.JSON(http.StatusInternalServerError, RagResponse{Status: "error", Data: map[string]interface{}{"message": "访问限制检查失败"}})
 		return
 	}
