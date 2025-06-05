@@ -101,7 +101,7 @@ func ragHandler(c *gin.Context) {
 		return
 	}
 	// 检查指纹是否在Redis中，若不在则设置
-	if _, err := CheckFingerprintExists(fingerprint); err != nil {
+	if exists, _ := CheckFingerprintExists(fingerprint); exists != true {
 		// 设置指纹访问限制为 10 次
 		if err := SetFingerprintLimit(fingerprint, 10); err != nil {
 			log.Println("设置访问限制失败:", err)
