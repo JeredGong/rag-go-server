@@ -29,6 +29,11 @@ type RagResponse struct {
 	Data   map[string]interface{} `json:"data"`
 }
 
+type CourseRecommendation struct {
+	Course string `json:"course"`
+	Reason string `json:"reason"`
+}
+
 const SEP_TOKEN = "<|Result|>"
 
 var (
@@ -141,12 +146,25 @@ func ragHandler(c *gin.Context) {
 		return
 	}
 	log.Println("LLM 调用成功，生成回答:", llmOutput)
-	// 返回最终的响应
+	// 将 LLM 输出解析为推荐课程
+	recommendations, err := ParseLLMOutput(llmOutput)
+	if err != nil {
+		log.Println("解析 LLM 输出失败:", err) // 新增日志：LLM 输出解析失败
+		c.JSON(http.StatusInternalServerError, RagResponse{Status: "error", Data: map[string]interface{}{"message": err.Error()}})
+		return
+	}
+	// 返回最终的响应,是一个CourseRecommendation的Json数组
+	responseData := make([]map[string]interface{}, 0, len(recommendations))
+	for _, rec := range recommendations {
+		responseData = append(responseData, map[string]interface{}{
+			"course": rec.Course,
+			"reason": rec.Reason,
+		})
+	}
 	c.JSON(http.StatusOK, RagResponse{
 		Status: "success",
 		Data: map[string]interface{}{
-			"rag_results": similarCourses,
-			"llm_output":  llmOutput,
+			"recommendations": responseData,
 		},
 	})
 }
@@ -350,6 +368,25 @@ func DecrementFingerprintLimit(fingerprint string) (bool, error) {
 	redisClient.Expire(ctx, key, ttl.Val())
 
 	return true, nil
+}
+func ParseLLMOutput(llmOutput string) ([]CourseRecommendation, error) {
+	sep := "<|Result|>"
+	index := strings.Index(llmOutput, sep)
+	if index == -1 {
+		return nil, fmt.Errorf("未找到 <|Result|> 分隔符")
+	}
+
+	// 提取 JSON 字符串部分
+	jsonPart := strings.TrimSpace(llmOutput[index+len(sep):])
+
+	// 解析 JSON
+	var result []CourseRecommendation
+	err := json.Unmarshal([]byte(jsonPart), &result)
+	if err != nil {
+		return nil, fmt.Errorf("JSON 解析失败: %v", err)
+	}
+
+	return result, nil
 }
 
 const SYSTEM_PROMPT = `你是一个课程选择助手。
