@@ -39,7 +39,7 @@ const SEP_TOKEN = "<|Result|>"
 var (
 	rpcClient      *qdrant.Client
 	collectionName = "WHUCoursesDB"
-	openaiAPIKey   = "sk-27bf4f76e0004738ba601aa7e1b8744e"
+	openaiAPIKey   = " "
 	embedEndpoint  = "https://whuworkers.jeredgong.workers.dev"
 )
 var (
@@ -53,6 +53,7 @@ func main() {
 	if errenv != nil {
 		log.Fatalf("加载 .env 文件失败: %v", errenv)
 	}
+	openaiAPIKey = os.Getenv("OPENAI_API_KEY") // 从环境变量中获取 OpenAI API Key
 	// ✅ 建立 Qdrant 客户端（推荐方式）
 	var err error
 	rpcClient, err = qdrant.NewClient(&qdrant.Config{
