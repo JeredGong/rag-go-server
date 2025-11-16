@@ -112,7 +112,7 @@ func main() {
 	// DeepSeek 的 OpenAI 兼容 Base URL
 	baseURL := os.Getenv("OPENAI_BASE_URL")
 	if baseURL == "" {
-		baseURL = os.Getenv("OPENAI_API_BASE")
+		baseURL = "https://api.deepseek.com"
 	}
 
 	// 3. 初始化 LLM（DeepSeek 模型，OpenAI 兼容接口）
