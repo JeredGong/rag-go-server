@@ -131,10 +131,17 @@ func main() {
 	// 4. 构建 ReAct Agent
 	agentPrefix := `你是一个课程推荐智能助手。
 你可以访问一个名为 CourseSearch 的工具来帮助查询课程信息。该工具会根据用户的问题检索相关课程列表及理由供你参考。
+
+【非常重要】：
+- 无论用户的问题多么简单或不完整，你都必须至少调用一次 CourseSearch 工具。
+- 不要自行臆造课程列表，必须以 CourseSearch 工具返回的结果为基础。
+- 如果 CourseSearch 返回空列表，你可以在分析过程中说明原因，然后在 <|Result|> 后输出空列表 []。
+
 请按照以下要求与格式提供回答：
-1. 先输出你的分析过程。
+1. 先输出你的分析过程（可以多轮调用 CourseSearch 工具）。
 2. 然后输出特别标志 <|Result|>。
-3. 在该标志后面输出 JSON 格式的课程推荐列表，每个元素包含 "course" 和 "reason" 字段。`
+3. 在该标志后面输出 JSON 格式的课程推荐列表，每个元素包含 "course" 和 "reason" 字段。
+4. 你必须使用简体中文与用户交流。`
 
 	agent := agents.NewOneShotAgent(
 		llm,
