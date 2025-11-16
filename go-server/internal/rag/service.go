@@ -73,15 +73,36 @@ func (s *Service) HandleRag(ctx context.Context, req model.RagRequest, fingerpri
 
 // ParseLLMOutput 从 LLM 输出中截取 <|Result|> 后的 JSON
 func ParseLLMOutput(llmOutput string) ([]model.CourseRecommendation, error) {
-	index := strings.Index(llmOutput, model.SepToken)
-	if index == -1 {
+	// 1. 先找到 <|Result|>
+	idx := strings.Index(llmOutput, model.SepToken)
+	if idx == -1 {
 		return nil, fmt.Errorf("未找到 %s 分隔符", model.SepToken)
 	}
 
-	jsonPart := strings.TrimSpace(llmOutput[index+len(model.SepToken):])
+	// 2. 取出 <|Result|> 之后的内容
+	s := llmOutput[idx+len(model.SepToken):]
 
+	// 3. 找到第一个 '[' 或 '{'（JSON 开头）
+	start := strings.IndexAny(s, "[{")
+	if start == -1 {
+		// 打印一下方便你在日志里看原始输出
+		log.Printf("LLM 输出中未找到 JSON 起始符号：[ 或 {，原始输出片段: %s", s)
+		return nil, fmt.Errorf("未找到 JSON 起始符号")
+	}
+	s = s[start:]
+
+	// 4. 可选：裁到最后一个 ']' 或 '}'（防止后面模型再啰嗦）
+	end := strings.LastIndexAny(s, "]}")
+	if end != -1 {
+		s = s[:end+1]
+	}
+
+	s = strings.TrimSpace(s)
+
+	// 5. 解析 JSON
 	var result []model.CourseRecommendation
-	if err := json.Unmarshal([]byte(jsonPart), &result); err != nil {
+	if err := json.Unmarshal([]byte(s), &result); err != nil {
+		log.Printf("解析 LLM JSON 片段失败，片段为: %s, 错误: %v", s, err)
 		return nil, fmt.Errorf("JSON 解析失败: %v", err)
 	}
 	return result, nil
