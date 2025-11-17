@@ -1,4 +1,5 @@
 // go-server/internal/embedding/cloudflare.go
+// 封装 Cloudflare Worker 提供的 embedding API，实现 Client 接口。
 package embedding
 
 import (
@@ -11,17 +12,21 @@ import (
 )
 
 // Client 抽象：文本 -> 向量
+// 方便替换不同厂商的向量化服务或在测试中 mock。
 type Client interface {
 	Embed(ctx context.Context, text string) ([]float32, error)
 }
 
 // CloudflareClient 使用 Cloudflare Worker 提供的 embedding 接口
 type CloudflareClient struct {
-	Endpoint   string
+	// Endpoint Cloudflare Worker 的完整 URL。
+	Endpoint string
+	// HTTPClient 可自定义，默认使用 http.DefaultClient。
 	HTTPClient *http.Client
 }
 
 func NewCloudflareClient(endpoint string) *CloudflareClient {
+	// 默认构造函数，便于在配置层传入 endpoint。
 	return &CloudflareClient{
 		Endpoint:   endpoint,
 		HTTPClient: http.DefaultClient,
@@ -29,6 +34,7 @@ func NewCloudflareClient(endpoint string) *CloudflareClient {
 }
 
 func (c *CloudflareClient) Embed(ctx context.Context, text string) ([]float32, error) {
+	// Embed 将输入文本发送给 Cloudflare Worker，并返回 float32 向量。
 	body := map[string]interface{}{"text": text}
 	jsonData, err := json.Marshal(body)
 	if err != nil {
@@ -41,6 +47,7 @@ func (c *CloudflareClient) Embed(ctx context.Context, text string) ([]float32, e
 	}
 	req.Header.Set("Content-Type", "application/json")
 
+	// 发起 POST 请求获取 embedding。
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("HTTP 请求失败: %w", err)
@@ -70,6 +77,7 @@ func (c *CloudflareClient) Embed(ctx context.Context, text string) ([]float32, e
 		return nil, fmt.Errorf("embedding 数据为空")
 	}
 
+	// 将 Cloudflare 返回的 float64 切片转换为 float32，以适配内部处理。
 	vec := make([]float32, len(result.Embedding.Data[0]))
 	for i, v := range result.Embedding.Data[0] {
 		vec[i] = float32(v)
