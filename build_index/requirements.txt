@@ -1,0 +1,20 @@
+# RAG Go Server - Python 依赖包
+# 用于索引构建脚本
+
+# 向量检索和索引
+faiss-cpu==1.7.4           # FAISS 向量索引库（CPU 版本）
+# faiss-gpu==1.7.4         # 如果有 GPU，可使用此版本
+
+# 向量数据库客户端
+qdrant-client==1.7.0       # Qdrant 官方 Python 客户端
+
+# 向量嵌入模型
+FlagEmbedding==1.2.5       # BGE-M3 向量化模型
+
+# 数据处理
+pandas==2.0.3              # CSV 数据处理
+numpy==1.24.3              # 数值计算
+
+# 工具库
+tqdm==4.66.1               # 进度条显示
+
