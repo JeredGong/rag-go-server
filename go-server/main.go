@@ -15,6 +15,7 @@ package main
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -23,16 +24,12 @@ import (
 
 	"rag-go-server/internal/config"
 	"rag-go-server/internal/embedding"
-	httpapi "rag-go-server/internal/http" // 使用别名避免与标准库 http 包冲突
+	httpapi "rag-go-server/internal/http"
 	"rag-go-server/internal/limit"
 	"rag-go-server/internal/llm"
 	"rag-go-server/internal/rag"
 	"rag-go-server/internal/vectorstore"
 )
-
-// collectionName 定义 Qdrant 中存储课程向量的集合名称
-// 该名称需要与索引构建脚本中使用的集合名称保持一致
-const collectionName = "WHUCoursesDB"
 
 func main() {
 	// ========================================
@@ -99,7 +96,7 @@ func main() {
 	
 	// store: 封装 Qdrant 的向量检索操作
 	// 提供统一的接口在指定集合中搜索最相似的课程
-	store := vectorstore.NewQdrantStore(qClient, collectionName)
+	store := vectorstore.NewQdrantStore(qClient, cfg.QdrantCollection)
 	
 	// llmClient: 大语言模型客户端，用于生成课程推荐和解释
 	// 使用 DeepSeek Chat API（兼容 OpenAI 接口格式）
@@ -116,19 +113,23 @@ func main() {
 	// 将上述四个模块注入到 RAG 服务中
 	// RAG 服务会协调它们完成完整的检索增强生成流程：
 	// 用户问题 → 向量化 → 向量检索 → LLM 生成 → 结构化输出
-	ragService := rag.NewService(embedder, store, llmClient, limiter)
+	ragService := rag.NewService(
+		embedder,
+		store,
+		llmClient,
+		limiter,
+		rag.WithCandidateLimit(cfg.CandidateLimit),
+		rag.WithRequestTimeout(cfg.RequestTimeout),
+	)
+	startedAt := time.Now()
 
 	// ========================================
 	// 阶段6: 配置 HTTP 服务器
 	// ========================================
 	
-	// 使用 Gin 框架创建 Web 服务
-	// Default() 会自动添加 Logger 和 Recovery 中间件
-	r := gin.Default()
-	
-	// 注册 POST /rag 路由
-	// 该端点接收用户的课程推荐请求，返回结构化的推荐结果
-	r.POST("/rag", httpapi.MakeRagHandler(ragService))
+	r := gin.New()
+	r.Use(gin.Recovery(), httpapi.RequestLogger())
+	httpapi.RegisterRoutes(r, ragService, startedAt)
 
 	// ========================================
 	// 阶段7: 启动服务器

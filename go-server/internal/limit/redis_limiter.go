@@ -53,14 +53,33 @@ type RateLimiter interface {
 type RedisRateLimiter struct {
 	// Client Redis 客户端，用于执行读写操作
 	Client *redis.Client
-	
+
 	// Limit 每个设备指纹在一个周期内的访问配额上限
 	Limit int
-	
+
 	// KeyPrefix Redis 键的前缀，用于区分不同业务的限流数据
 	// 最终存储的键格式为：prefix + fingerprint
 	KeyPrefix string
 }
+
+var rateLimitScript = redis.NewScript(`
+local key = KEYS[1]
+local limit = tonumber(ARGV[1])
+local ttl = tonumber(ARGV[2])
+
+local current = redis.call("GET", key)
+if not current then
+	redis.call("SET", key, limit - 1, "PX", ttl)
+	return limit - 1
+end
+
+current = tonumber(current)
+if current <= 0 then
+	return -1
+end
+
+return redis.call("DECR", key)
+`)
 
 // NewRedisRateLimiter 创建一个新的 Redis 限流器实例
 //
@@ -131,60 +150,27 @@ func (r *RedisRateLimiter) Allow(ctx context.Context, fingerprint string) (bool,
 	// 构造 Redis 键：prefix + 设备指纹
 	key := r.KeyPrefix + fingerprint
 
-	// ========================================
-	// 阶段1: 检查设备记录是否存在
-	// ========================================
-	
-	exists, err := r.Client.Exists(ctx, key).Result()
+	expireAt := nextThursdayMidnight()
+	duration := time.Until(expireAt)
+	if duration <= 0 {
+		duration = 7 * 24 * time.Hour
+	}
+
+	res, err := rateLimitScript.Run(ctx, r.Client, []string{key}, r.Limit, duration.Milliseconds()).Int64()
 	if err != nil {
-		return false, err
+		return false, fmt.Errorf("执行限流脚本失败: %w", err)
 	}
-	
-	// 如果是新设备首次访问，需要初始化配额
-	if exists == 0 {
-		// 计算配额过期时间（下一个周四凌晨）
-		expireAt := nextThursdayMidnight()
-		duration := time.Until(expireAt)
-		
-		// 在 Redis 中设置初始配额，并设置 TTL
-		// SET key limit EX duration
-		if err := r.Client.Set(ctx, key, r.Limit, duration).Err(); err != nil {
-			return false, err
-		}
-		
-		// 记录新设备的初始化信息，便于监控和审计
-		log.Printf("新设备指纹 %s 已设置访问限制为 %d 次，截止到 %s", 
+
+	if res < 0 {
+		return false, nil
+	}
+
+	if res == int64(r.Limit-1) {
+		log.Printf("新设备指纹 %s 已设置访问限制为 %d 次，截止到 %s",
 			fingerprint, r.Limit, expireAt.Format(time.RFC3339))
+	} else if res < 3 {
+		log.Printf("[限流提醒] 设备 %s 剩余配额 %d 次", fingerprint, res)
 	}
 
-	// ========================================
-	// 阶段2: 查询剩余配额
-	// ========================================
-	
-	val, err := r.Client.Get(ctx, key).Int()
-	if err == redis.Nil {
-		// 键不存在（理论上不应该发生，因为前面已经初始化）
-		return false, nil
-	} else if err != nil {
-		// Redis 操作失败
-		return false, err
-	}
-	
-	// 配额已用尽，拒绝访问
-	if val <= 0 {
-		return false, nil
-	}
-
-	// ========================================
-	// 阶段3: 递减配额并允许访问
-	// ========================================
-	
-	// 使用 DECR 命令原子性地减少配额
-	// DECR 是 Redis 的原子操作，保证并发安全
-	if err := r.Client.Decr(ctx, key).Err(); err != nil {
-		return false, fmt.Errorf("减少配额失败: %w", err)
-	}
-	
-	// 配额递减成功，允许本次访问
 	return true, nil
 }

@@ -8,12 +8,19 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"rag-go-server/internal/embedding"
 	"rag-go-server/internal/limit"
 	"rag-go-server/internal/llm"
 	"rag-go-server/internal/model"
 	"rag-go-server/internal/vectorstore"
+)
+
+const (
+	defaultCandidateLimit = 40
+	defaultRequestTimeout = 25 * time.Second
+	maxLLMFragmentBytes   = 256 * 1024
 )
 
 // Service 封装完整 RAG 处理链条
@@ -26,7 +33,14 @@ type Service struct {
 	LLM llm.Client
 	// Limiter 控制请求速率，保护后端资源。
 	Limiter limit.RateLimiter
+	// CandidateLimit 控制传给 LLM 的候选课程数量
+	CandidateLimit int
+	// RequestTimeout 限制一次 RAG 请求的整体耗时
+	RequestTimeout time.Duration
 }
+
+// Option 配置 Service 的可选项
+type Option func(*Service)
 
 // NewService 创建一个 RAG 服务实例
 func NewService(
@@ -34,14 +48,32 @@ func NewService(
 	vs vectorstore.Store,
 	l llm.Client,
 	limiter limit.RateLimiter,
+	opts ...Option,
 ) *Service {
 	// 以依赖注入方式组装服务，方便在测试环境替换组件。
-	return &Service{
+	svc := &Service{
 		Embedder:    e,
 		VectorStore: vs,
 		LLM:         l,
 		Limiter:     limiter,
+		CandidateLimit: defaultCandidateLimit,
+		RequestTimeout: defaultRequestTimeout,
 	}
+
+	for _, opt := range opts {
+		if opt != nil {
+			opt(svc)
+		}
+	}
+
+	if svc.CandidateLimit <= 0 {
+		svc.CandidateLimit = defaultCandidateLimit
+	}
+	if svc.RequestTimeout <= 0 {
+		svc.RequestTimeout = defaultRequestTimeout
+	}
+
+	return svc
 }
 
 // HandleRag 运行完整的 RAG 流程：限流 → 向量化 → 检索 → LLM → 解析
@@ -51,6 +83,8 @@ func (s *Service) HandleRag(
 	fingerprint string,
 ) ([]model.CourseRecommendation, error) {
 	// 此方法贯穿限流、向量化、检索、生成、解析五个阶段。
+	ctx, cancel := context.WithTimeout(ctx, s.RequestTimeout)
+	defer cancel()
 
 	// --------------------------
 	// 1. 限流检查
@@ -61,41 +95,44 @@ func (s *Service) HandleRag(
 		return nil, fmt.Errorf("访问限制检查失败: %w", err)
 	}
 	if !allowed {
-		return nil, fmt.Errorf("访问次数已用完，请稍后再试")
+		return nil, ErrRateLimitExceeded
 	}
 
 	// --------------------------
 	// 2. 用户查询 → embedding
 	// --------------------------
 	// 将用户问题转换为向量以便向量数据库进行语义匹配。
+	embedStart := time.Now()
 	vec, err := s.Embedder.Embed(ctx, req.UserQuestion)
 	if err != nil {
 		return nil, fmt.Errorf("生成嵌入失败: %w", err)
 	}
 	// 记录嵌入完成信息，有助于排查延迟瓶颈。
-	log.Println("🔹 用户问题嵌入向量生成完毕")
+	log.Printf("🔹 用户问题嵌入向量生成完毕，用时 %s", time.Since(embedStart))
 
 	// --------------------------
 	// 3. 向量检索（Qdrant）
 	// --------------------------
 	// 从向量数据库中检索 topK 课程，形成候选集合。
-	courses, err := s.VectorStore.Search(ctx, vec, req.Catagory, 100)
+	searchStart := time.Now()
+	courses, err := s.VectorStore.Search(ctx, vec, req.Catagory, s.CandidateLimit)
 	if err != nil {
 		return nil, fmt.Errorf("Qdrant 搜索失败: %w", err)
 	}
 	// 记录命中数量，方便监控召回效果。
-	log.Printf("🔹 Qdrant 检索完成，共找到 %d 条候选课程", len(courses))
+	log.Printf("🔹 Qdrant 检索完成，共找到 %d 条候选课程 (limit=%d, 用时=%s)", len(courses), s.CandidateLimit, time.Since(searchStart))
 
 	// --------------------------
 	// 4. 使用 LLM 生成推荐内容
 	// --------------------------
 	// 将用户问题与候选课程传入 LLM 以构造最终推荐。
+	llmStart := time.Now()
 	llmResp, err := s.LLM.RecommendCourses(ctx, req.UserQuestion, courses)
 	if err != nil {
 		return nil, fmt.Errorf("LLM 调用失败: %w", err)
 	}
 	// LLM 走通表示生成环节已完成。
-	log.Println("🔹 LLM 已成功返回推荐结果")
+	log.Printf("🔹 LLM 已成功返回推荐结果，用时 %s", time.Since(llmStart))
 
 	// --------------------------
 	// 5. 解析 LLM JSON 输出
@@ -116,12 +153,13 @@ func ParseLLMOutput(llmOutput string) ([]model.CourseRecommendation, error) {
 	// --------------------------
 	// 1. 查找分隔符 <|Result|>
 	// --------------------------
-	pos := strings.Index(llmOutput, model.SepToken)
+	cleanOutput := stripCodeFence(strings.TrimSpace(llmOutput))
+	pos := strings.Index(cleanOutput, model.SepToken)
 	if pos == -1 {
 		return nil, fmt.Errorf("LLM 输出中未找到分隔符 %s", model.SepToken)
 	}
 
-	fragment := llmOutput[pos+len(model.SepToken):]
+	fragment := stripCodeFence(cleanOutput[pos+len(model.SepToken):])
 	// fragment 仅保留分隔符之后的内容，避免被系统提示词干扰。
 
 	// --------------------------
@@ -146,7 +184,16 @@ func ParseLLMOutput(llmOutput string) ([]model.CourseRecommendation, error) {
 	}
 
 	// 去掉前后空白字符，降低 JSON 解析失败的概率。
-	fragment = strings.TrimSpace(fragment)
+	fragment = stripCodeFence(strings.TrimSpace(fragment))
+	if len(fragment) > maxLLMFragmentBytes {
+		return nil, fmt.Errorf("LLM 输出过大（%d bytes），拒绝解析", len(fragment))
+	}
+	if fragment == "" {
+		return nil, fmt.Errorf("未提取到有效的 JSON 负载")
+	}
+	if fragment[0] == '{' {
+		fragment = "[" + fragment + "]"
+	}
 
 	// --------------------------
 	// 4. 尝试反序列化
@@ -160,4 +207,36 @@ func ParseLLMOutput(llmOutput string) ([]model.CourseRecommendation, error) {
 
 	// 解析成功后返回结构化课程推荐数组供上层使用。
 	return items, nil
+}
+
+func stripCodeFence(text string) string {
+	trimmed := strings.TrimSpace(text)
+	for _, prefix := range []string{"```json", "```JSON", "```"} {
+		if strings.HasPrefix(trimmed, prefix) {
+			trimmed = strings.TrimSpace(trimmed[len(prefix):])
+			break
+		}
+	}
+	if idx := strings.LastIndex(trimmed, "```"); idx != -1 {
+		trimmed = trimmed[:idx]
+	}
+	return strings.TrimSpace(trimmed)
+}
+
+// WithCandidateLimit 配置候选数量
+func WithCandidateLimit(limit int) Option {
+	return func(s *Service) {
+		if limit > 0 {
+			s.CandidateLimit = limit
+		}
+	}
+}
+
+// WithRequestTimeout 配置请求超时时长
+func WithRequestTimeout(d time.Duration) Option {
+	return func(s *Service) {
+		if d > 0 {
+			s.RequestTimeout = d
+		}
+	}
 }

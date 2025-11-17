@@ -23,6 +23,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
 
 // Client 定义文本向量化的通用接口
@@ -62,6 +63,8 @@ type CloudflareClient struct {
 	HTTPClient *http.Client
 }
 
+const defaultHTTPTimeout = 15 * time.Second
+
 // NewCloudflareClient 创建一个新的 Cloudflare 向量化客户端
 //
 // 参数：
@@ -72,7 +75,9 @@ type CloudflareClient struct {
 func NewCloudflareClient(endpoint string) *CloudflareClient {
 	return &CloudflareClient{
 		Endpoint:   endpoint,
-		HTTPClient: http.DefaultClient,
+		HTTPClient: &http.Client{
+			Timeout: defaultHTTPTimeout,
+		},
 	}
 }
 
@@ -114,7 +119,11 @@ func (c *CloudflareClient) Embed(ctx context.Context, text string) ([]float32, e
 	// 阶段2: 发送请求
 	// ========================================
 	
-	resp, err := c.HTTPClient.Do(req)
+	client := c.HTTPClient
+	if client == nil {
+		client = http.DefaultClient
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("HTTP 请求失败: %w", err)
 	}

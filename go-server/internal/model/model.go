@@ -10,6 +10,12 @@
 // 将数据模型集中定义在一个包中，便于统一管理和维护。
 package model
 
+import (
+	"errors"
+	"strings"
+	"unicode/utf8"
+)
+
 // RagRequest 表示客户端发送的课程推荐请求
 //
 // 该结构体对应 POST /rag 接口的请求体，前端需按此格式发送 JSON 数据。
@@ -17,7 +23,7 @@ type RagRequest struct {
 	// UserQuestion 用户的自然语言问题
 	// 示例："我想选一些没有期末考试的课程"
 	UserQuestion string `json:"userQuestion"`
-	
+
 	// Catagory 课程分类筛选条件
 	// 0 表示不限制分类，其他数值对应具体的课程类型：
 	//   1 - 体育课
@@ -27,6 +33,25 @@ type RagRequest struct {
 	//   5 - 通识必修课（导引课）
 	//   6 - 英语课
 	Catagory int `json:"catagory"`
+}
+
+// Normalize 对字段进行基础清洗
+func (r *RagRequest) Normalize() {
+	r.UserQuestion = strings.TrimSpace(r.UserQuestion)
+}
+
+// Validate 校验字段合法性
+func (r RagRequest) Validate() error {
+	if r.UserQuestion == "" {
+		return NewValidationError("userQuestion", "问题内容不能为空")
+	}
+	if utf8.RuneCountInString(r.UserQuestion) > MaxQuestionRunes {
+		return NewValidationError("userQuestion", "问题内容过长")
+	}
+	if r.Catagory < 0 {
+		return NewValidationError("catagory", "catagory 不能为负数")
+	}
+	return nil
 }
 
 // RagResponse 表示服务端返回的统一响应格式
@@ -69,6 +94,9 @@ type CourseRecommendation struct {
 //   [{"course": "课程A", "reason": "无考试"}, ...]
 const SepToken = "<|Result|>"
 
+// MaxQuestionRunes 限制单次问题长度
+const MaxQuestionRunes = 1024
+
 // SystemPrompt 是发送给 DeepSeek 大模型的系统提示词
 //
 // 该提示词定义了 AI 的角色、任务要求和输出格式规范。
@@ -97,3 +125,24 @@ json格式的字符串是一个列表，列表中的每个元素是一个字符�
  {"course": "你推荐课程的名称3", "reason": "你推荐课程的理由3"}]
 
 以下是用户的输入`
+
+// ValidationError 表示请求字段校验失败
+type ValidationError struct {
+	Field   string
+	Message string
+}
+
+func (v ValidationError) Error() string {
+	return v.Field + ": " + v.Message
+}
+
+// NewValidationError 创建一个 ValidationError
+func NewValidationError(field, msg string) error {
+	return ValidationError{Field: field, Message: msg}
+}
+
+// IsValidationError 判断错误是否为 ValidationError
+func IsValidationError(err error) bool {
+	var target ValidationError
+	return errors.As(err, &target)
+}

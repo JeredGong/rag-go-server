@@ -24,6 +24,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"rag-go-server/internal/model"
 )
@@ -64,6 +65,11 @@ type DeepSeekClient struct {
 	HTTPClient *http.Client
 }
 
+const (
+	defaultLLMTimeout      = 60 * time.Second
+	maxCourseContextRunes  = 512
+)
+
 // NewDeepSeekClient 创建一个新的 DeepSeek 客户端
 //
 // 参数：
@@ -75,7 +81,9 @@ func NewDeepSeekClient(apiKey string) *DeepSeekClient {
 	return &DeepSeekClient{
 		APIKey:     apiKey,
 		URL:        "https://api.deepseek.com/chat/completions",
-		HTTPClient: http.DefaultClient,
+		HTTPClient: &http.Client{
+			Timeout: defaultLLMTimeout,
+		},
 	}
 }
 
@@ -106,7 +114,7 @@ func (d *DeepSeekClient) RecommendCourses(ctx context.Context, question string, 
 	textList := make([]string, 0, len(courses))
 	for _, course := range courses {
 		if text, ok := course["text"].(string); ok {
-			textList = append(textList, text)
+			textList = append(textList, sanitizeCourseText(text))
 		}
 	}
 
@@ -156,7 +164,11 @@ func (d *DeepSeekClient) RecommendCourses(ctx context.Context, question string, 
 	req.Header.Set("Authorization", "Bearer "+d.APIKey) // 认证
 	req.Header.Set("Content-Type", "application/json")  // 指定内容类型
 
-	resp, err := d.HTTPClient.Do(req)
+	client := d.HTTPClient
+	if client == nil {
+		client = http.DefaultClient
+	}
+	resp, err := client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("LLM API 调用失败: %w", err)
 	}
@@ -216,8 +228,17 @@ func (d *DeepSeekClient) RecommendCourses(ctx context.Context, question string, 
 	
 	content, ok := msg["content"].(string)
 	if !ok {
-		return "", fmt.Errorf("message.content 不是字符串")
+	return "", fmt.Errorf("message.content 不是字符串")
+}
+
+func sanitizeCourseText(text string) string {
+	trimmed := strings.TrimSpace(text)
+	runes := []rune(trimmed)
+	if len(runes) > maxCourseContextRunes {
+		return string(runes[:maxCourseContextRunes]) + "..."
 	}
+	return trimmed
+}
 	
 	// 返回生成的文本内容
 	// 该内容包含 LLM 的分析过程和 <|Result|> 标记后的 JSON 推荐列表
