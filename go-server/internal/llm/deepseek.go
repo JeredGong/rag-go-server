@@ -53,23 +53,29 @@ func (d *DeepSeekClient) RecommendCourses(ctx context.Context, question string, 
 		},
 		"stream": false,
 	}
-	jsonBody, _ := json.Marshal(requestBody)
+	jsonBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return "", fmt.Errorf("序列化 LLM 请求失败: %w", err)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, d.URL, bytes.NewBuffer(jsonBody))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("创建 LLM 请求失败: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+d.APIKey)
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := d.HTTPClient.Do(req)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("LLM API 调用失败: %w", err)
 	}
 	defer resp.Body.Close()
 
-	respData, _ := io.ReadAll(resp.Body)
-	log.Printf("DeepSeek 响应状态码: %d\n", resp.StatusCode)
+	respData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("读取 LLM 响应体失败: %w", err)
+	}
+	log.Printf("DeepSeek 响应状态码: %d", resp.StatusCode)
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		log.Printf("非成功响应内容: %s", string(respData))

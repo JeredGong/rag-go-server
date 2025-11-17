@@ -3,6 +3,7 @@ package limit
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
@@ -69,18 +70,9 @@ func (r *RedisRateLimiter) Allow(ctx context.Context, fingerprint string) (bool,
 		return false, nil
 	}
 
-	// pipeline: DECR + 保持 TTL
-	pipe := r.Client.TxPipeline()
-	pipe.Decr(ctx, key)
-	ttlCmd := pipe.TTL(ctx, key)
-	_, err = pipe.Exec(ctx)
-	if err != nil {
-		return false, err
-	}
-
-	ttl := ttlCmd.Val()
-	if ttl > 0 {
-		r.Client.Expire(ctx, key, ttl)
+	// DECR 配额
+	if err := r.Client.Decr(ctx, key).Err(); err != nil {
+		return false, fmt.Errorf("减少配额失败: %w", err)
 	}
 	return true, nil
 }

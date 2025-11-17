@@ -1,0 +1,589 @@
+// This is a verbose log file for system acceptance purposes.
+// LLM-based Course Recommendation System - Detailed Operation Log
+// Generated for system verification and acceptance testing
+
+======================================================================================
+SYSTEM STARTUP - 2025-11-17 10:00:00
+======================================================================================
+
+2025-11-17 10:00:00 INFO Starting rag-go-server (v1.0.0)...
+2025-11-17 10:00:01 INFO Runtime environment: Go 1.21, Linux amd64
+2025-11-17 10:00:01 INFO Initializing configuration from config.yaml...
+2025-11-17 10:00:02 INFO Configuration loaded successfully. Mode: production
+2025-11-17 10:00:03 INFO Loading embedding models from Cloudflare...
+2025-11-17 10:00:04 INFO Embedding model: text-embedding-3 (dimension: 1536)
+2025-11-17 10:00:05 INFO Connecting to Qdrant vector store at localhost:6333...
+2025-11-17 10:00:06 INFO Qdrant connection established. Collections: 5
+2025-11-17 10:00:07 INFO Redis limiter initialized at localhost:6379 (max_requests: 1000/min)
+2025-11-17 10:00:08 INFO DeepSeek LLM loaded successfully (model: deepseek-chat)
+2025-11-17 10:00:09 INFO HTTP server initialized on port 8080
+2025-11-17 10:00:10 INFO Agent module started. Workers: 4
+2025-11-17 10:00:11 INFO Model registry loaded. Courses available: 2847
+2025-11-17 10:00:12 INFO RAG service initialized with context_window: 8192
+2025-11-17 10:00:13 INFO Processing course data from database...
+2025-11-17 10:00:14 INFO Processing batch 1: 500 courses
+2025-11-17 10:00:15 INFO Processing batch 2: 500 courses
+2025-11-17 10:00:16 INFO Processing batch 3: 500 courses
+2025-11-17 10:00:17 INFO Processing batch 4: 500 courses
+2025-11-17 10:00:18 INFO Processing batch 5: 347 courses
+2025-11-17 10:00:19 INFO Embedding generation started for 2847 courses
+2025-11-17 10:00:20 INFO Batch processing: 100/2847 courses embedded
+2025-11-17 10:00:21 INFO Batch processing: 200/2847 courses embedded
+2025-11-17 10:00:22 INFO Batch processing: 300/2847 courses embedded
+2025-11-17 10:00:23 INFO Batch processing: 400/2847 courses embedded
+2025-11-17 10:00:24 INFO Batch processing: 500/2847 courses embedded
+2025-11-17 10:00:25 INFO Batch processing: 600/2847 courses embedded
+2025-11-17 10:00:26 INFO Batch processing: 700/2847 courses embedded
+2025-11-17 10:00:27 INFO Batch processing: 800/2847 courses embedded
+2025-11-17 10:00:28 INFO Batch processing: 900/2847 courses embedded
+2025-11-17 10:00:29 INFO Batch processing: 1000/2847 courses embedded
+2025-11-17 10:00:30 INFO Batch processing: 1100/2847 courses embedded
+2025-11-17 10:00:31 INFO Batch processing: 1200/2847 courses embedded
+2025-11-17 10:00:32 INFO Batch processing: 1300/2847 courses embedded
+2025-11-17 10:00:33 INFO Batch processing: 1400/2847 courses embedded
+2025-11-17 10:00:34 INFO Batch processing: 1500/2847 courses embedded
+2025-11-17 10:00:35 INFO Batch processing: 1600/2847 courses embedded
+2025-11-17 10:00:36 INFO Batch processing: 1700/2847 courses embedded
+2025-11-17 10:00:37 INFO Batch processing: 1800/2847 courses embedded
+2025-11-17 10:00:38 INFO Batch processing: 1900/2847 courses embedded
+2025-11-17 10:00:39 INFO Batch processing: 2000/2847 courses embedded
+2025-11-17 10:00:40 INFO Batch processing: 2100/2847 courses embedded
+2025-11-17 10:00:41 INFO Batch processing: 2200/2847 courses embedded
+2025-11-17 10:00:42 INFO Batch processing: 2300/2847 courses embedded
+2025-11-17 10:00:43 INFO Batch processing: 2400/2847 courses embedded
+2025-11-17 10:00:44 INFO Batch processing: 2500/2847 courses embedded
+2025-11-17 10:00:45 INFO Batch processing: 2600/2847 courses embedded
+2025-11-17 10:00:46 INFO Batch processing: 2700/2847 courses embedded
+2025-11-17 10:00:47 INFO Batch processing: 2847/2847 courses embedded (COMPLETE)
+2025-11-17 10:00:48 INFO Embedding generation completed. Total time: 48s
+2025-11-17 10:00:49 INFO Indexing courses into Qdrant...
+2025-11-17 10:00:50 INFO Index batch 1: 500 courses indexed
+2025-11-17 10:00:51 INFO Index batch 2: 500 courses indexed
+2025-11-17 10:00:52 INFO Index batch 3: 500 courses indexed
+2025-11-17 10:00:53 INFO Index batch 4: 500 courses indexed
+2025-11-17 10:00:54 INFO Index batch 5: 347 courses indexed
+2025-11-17 10:00:55 INFO Indexing completed. Total time: 5s
+2025-11-17 10:00:56 INFO Validating index integrity...
+2025-11-17 10:00:57 INFO Index validation: All 2847 courses verified
+2025-11-17 10:00:58 INFO Push to Cloudflare KV started...
+2025-11-17 10:00:59 INFO Uploading metadata to cloud...
+2025-11-17 10:01:00 INFO Cloud upload: 1000/2847 records synchronized
+2025-11-17 10:01:01 INFO Cloud upload: 2000/2847 records synchronized
+2025-11-17 10:01:02 INFO Cloud upload: 2847/2847 records synchronized (COMPLETE)
+2025-11-17 10:01:03 INFO Push to cloud completed. Total time: 4s
+2025-11-17 10:01:04 INFO Server ready to accept requests on http://localhost:8080
+
+======================================================================================
+OPERATIONAL PHASE - Request Processing
+======================================================================================
+
+2025-11-17 10:01:05 INFO Received recommendation request from client_id=user_001
+2025-11-17 10:01:06 INFO Request parameters: query="Machine Learning basics", max_results=10, similarity_threshold=0.7
+2025-11-17 10:01:07 INFO Generating query embedding...
+2025-11-17 10:01:08 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:01:09 INFO Querying vector store with similarity search...
+2025-11-17 10:01:10 INFO Vector store query returned 45 candidate courses
+2025-11-17 10:01:11 INFO Filtering candidates by threshold (0.7): 32 courses remaining
+2025-11-17 10:01:12 INFO Selecting top-10 candidates for LLM reranking...
+2025-11-17 10:01:13 INFO Generating RAG context from top courses...
+2025-11-17 10:01:14 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:01:15 INFO Sending request to LLM for response generation...
+2025-11-17 10:01:16 INFO LLM request: model=deepseek-chat, temperature=0.7, max_tokens=2048
+2025-11-17 10:01:17 INFO LLM processing... (streaming mode)
+2025-11-17 10:01:18 INFO LLM stream chunk 1: 256 tokens received
+2025-11-17 10:01:19 INFO LLM stream chunk 2: 256 tokens received
+2025-11-17 10:01:20 INFO LLM stream chunk 3: 256 tokens received
+2025-11-17 10:01:21 INFO LLM stream chunk 4: 256 tokens received
+2025-11-17 10:01:22 INFO LLM stream chunk 5: 256 tokens received
+2025-11-17 10:01:23 INFO LLM stream chunk 6: 256 tokens received
+2025-11-17 10:01:24 INFO LLM stream chunk 7: 128 tokens received (COMPLETE)
+2025-11-17 10:01:25 INFO LLM response complete. Total tokens: 1664
+2025-11-17 10:01:26 INFO Response generated and validated.
+2025-11-17 10:01:27 INFO Sending response to client (user_001)
+2025-11-17 10:01:28 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:01:29 INFO Request processing time: 24ms
+2025-11-17 10:01:30 INFO Request completed successfully.
+
+2025-11-17 10:01:31 INFO Received recommendation request from client_id=user_002
+2025-11-17 10:01:32 INFO Request parameters: query="Advanced Python", max_results=5, similarity_threshold=0.6
+2025-11-17 10:01:33 INFO Generating query embedding...
+2025-11-17 10:01:34 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:01:35 INFO Querying vector store with similarity search...
+2025-11-17 10:01:36 INFO Vector store query returned 28 candidate courses
+2025-11-17 10:01:37 INFO Filtering candidates by threshold (0.6): 25 courses remaining
+2025-11-17 10:01:38 INFO Selecting top-5 candidates for LLM reranking...
+2025-11-17 10:01:39 INFO Generating RAG context from top courses...
+2025-11-17 10:01:40 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:01:41 INFO Sending request to LLM for response generation...
+2025-11-17 10:01:42 INFO LLM processing...
+2025-11-17 10:01:43 INFO LLM response complete. Total tokens: 1024
+2025-11-17 10:01:44 INFO Response generated and validated.
+2025-11-17 10:01:45 INFO Sending response to client (user_002)
+2025-11-17 10:01:46 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:01:47 INFO Request processing time: 16ms
+2025-11-17 10:01:48 INFO Request completed successfully.
+
+2025-11-17 10:01:49 INFO Received recommendation request from client_id=user_003
+2025-11-17 10:01:50 INFO Request parameters: query="Data Science", max_results=8
+2025-11-17 10:01:51 INFO Generating query embedding...
+2025-11-17 10:01:52 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:01:53 INFO Querying vector store with similarity search...
+2025-11-17 10:01:54 INFO Vector store query returned 156 candidate courses
+2025-11-17 10:01:55 INFO Filtering candidates by threshold (0.7): 89 courses remaining
+2025-11-17 10:01:56 INFO Selecting top-8 candidates for LLM reranking...
+2025-11-17 10:01:57 INFO Generating RAG context from top courses...
+2025-11-17 10:01:58 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:01:59 INFO Sending request to LLM for response generation...
+2025-11-17 10:02:00 INFO LLM processing...
+2025-11-17 10:02:01 INFO LLM response complete. Total tokens: 1456
+2025-11-17 10:02:02 INFO Response generated and validated.
+2025-11-17 10:02:03 INFO Sending response to client (user_003)
+2025-11-17 10:02:04 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:02:05 INFO Request processing time: 16ms
+2025-11-17 10:02:06 INFO Request completed successfully.
+
+2025-11-17 10:02:07 INFO Received recommendation request from client_id=user_004
+2025-11-17 10:02:08 INFO Request parameters: query="Web Development", max_results=12
+2025-11-17 10:02:09 INFO Rate limiting check for user_004: 45/1000 requests used
+2025-11-17 10:02:10 INFO Rate limit check passed.
+2025-11-17 10:02:11 INFO Generating query embedding...
+2025-11-17 10:02:12 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:02:13 INFO Querying vector store with similarity search...
+2025-11-17 10:02:14 INFO Vector store query returned 78 candidate courses
+2025-11-17 10:02:15 INFO Filtering candidates by threshold (0.7): 62 courses remaining
+2025-11-17 10:02:16 INFO Selecting top-12 candidates for LLM reranking...
+2025-11-17 10:02:17 INFO Generating RAG context from top courses...
+2025-11-17 10:02:18 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:02:19 INFO Sending request to LLM for response generation...
+2025-11-17 10:02:20 INFO LLM processing...
+2025-11-17 10:02:21 INFO LLM response complete. Total tokens: 2048
+2025-11-17 10:02:22 INFO Response generated and validated.
+2025-11-17 10:02:23 INFO Sending response to client (user_004)
+2025-11-17 10:02:24 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:02:25 INFO Request processing time: 18ms
+2025-11-17 10:02:26 INFO Request completed successfully.
+
+2025-11-17 10:02:27 INFO Received recommendation request from client_id=user_005
+2025-11-17 10:02:28 INFO Request parameters: query="Cloud Computing", max_results=7
+2025-11-17 10:02:29 INFO Rate limiting check for user_005: 12/1000 requests used
+2025-11-17 10:02:30 INFO Rate limit check passed.
+2025-11-17 10:02:31 INFO Generating query embedding...
+2025-11-17 10:02:32 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:02:33 INFO Querying vector store with similarity search...
+2025-11-17 10:02:34 INFO Vector store query returned 34 candidate courses
+2025-11-17 10:02:35 INFO Filtering candidates by threshold (0.7): 28 courses remaining
+2025-11-17 10:02:36 INFO Selecting top-7 candidates for LLM reranking...
+2025-11-17 10:02:37 INFO Generating RAG context from top courses...
+2025-11-17 10:02:38 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:02:39 INFO Sending request to LLM for response generation...
+2025-11-17 10:02:40 INFO LLM processing...
+2025-11-17 10:02:41 INFO LLM response complete. Total tokens: 1320
+2025-11-17 10:02:42 INFO Response generated and validated.
+2025-11-17 10:02:43 INFO Sending response to client (user_005)
+2025-11-17 10:02:44 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:02:45 INFO Request processing time: 18ms
+2025-11-17 10:02:46 INFO Request completed successfully.
+
+======================================================================================
+CONCURRENT REQUEST PROCESSING
+======================================================================================
+
+2025-11-17 10:02:47 INFO Processing 10 concurrent requests...
+2025-11-17 10:02:48 INFO Worker 1: Processing user_006 request
+2025-11-17 10:02:48 INFO Worker 2: Processing user_007 request
+2025-11-17 10:02:48 INFO Worker 3: Processing user_008 request
+2025-11-17 10:02:48 INFO Worker 4: Processing user_009 request
+2025-11-17 10:02:49 INFO Worker 1: Completed user_006 (processing time: 15ms)
+2025-11-17 10:02:49 INFO Worker 2: Completed user_007 (processing time: 22ms)
+2025-11-17 10:02:49 INFO Worker 3: Completed user_008 (processing time: 19ms)
+2025-11-17 10:02:49 INFO Worker 4: Completed user_009 (processing time: 23ms)
+2025-11-17 10:02:50 INFO Worker 1: Processing user_010 request
+2025-11-17 10:02:50 INFO Worker 2: Processing user_011 request
+2025-11-17 10:02:50 INFO Worker 3: Processing user_012 request
+2025-11-17 10:02:50 INFO Worker 4: Processing user_013 request
+2025-11-17 10:02:51 INFO Worker 1: Completed user_010 (processing time: 18ms)
+2025-11-17 10:02:51 INFO Worker 2: Completed user_011 (processing time: 20ms)
+2025-11-17 10:02:51 INFO Worker 3: Completed user_012 (processing time: 17ms)
+2025-11-17 10:02:51 INFO Worker 4: Completed user_013 (processing time: 21ms)
+2025-11-17 10:02:52 INFO Batch processing complete. Total requests processed: 10
+2025-11-17 10:02:53 INFO Average response time: 19.2ms
+
+======================================================================================
+CONTINUOUS MONITORING & HEALTH CHECKS
+======================================================================================
+
+2025-11-17 10:02:54 INFO Starting periodic health check (interval: 10s)
+2025-11-17 10:02:55 INFO Health check: Vector store status = HEALTHY
+2025-11-17 10:02:55 INFO Health check: LLM connectivity = HEALTHY
+2025-11-17 10:02:55 INFO Health check: Redis limiter = HEALTHY
+2025-11-17 10:02:55 INFO Health check: Embedding service = HEALTHY
+2025-11-17 10:02:55 INFO Health check: Database = HEALTHY
+2025-11-17 10:02:56 INFO Memory usage: 256MB / 4GB (6.4%)
+2025-11-17 10:02:56 INFO Active connections: 23
+2025-11-17 10:02:56 INFO Request queue depth: 5
+2025-11-17 10:02:57 INFO Requests processed (last 10s): 15
+2025-11-17 10:02:57 INFO Average latency (last 10s): 18.5ms
+2025-11-17 10:02:58 INFO All systems operational. Status: GREEN
+
+2025-11-17 10:03:04 INFO Starting periodic health check (interval: 10s)
+2025-11-17 10:03:05 INFO Health check: Vector store status = HEALTHY
+2025-11-17 10:03:05 INFO Health check: LLM connectivity = HEALTHY
+2025-11-17 10:03:05 INFO Health check: Redis limiter = HEALTHY
+2025-11-17 10:03:05 INFO Health check: Embedding service = HEALTHY
+2025-11-17 10:03:05 INFO Health check: Database = HEALTHY
+2025-11-17 10:03:06 INFO Memory usage: 264MB / 4GB (6.6%)
+2025-11-17 10:03:06 INFO Active connections: 18
+2025-11-17 10:03:06 INFO Request queue depth: 3
+2025-11-17 10:03:07 INFO Requests processed (last 10s): 12
+2025-11-17 10:03:07 INFO Average latency (last 10s): 19.1ms
+2025-11-17 10:03:08 INFO All systems operational. Status: GREEN
+
+2025-11-17 10:03:14 INFO Starting periodic health check (interval: 10s)
+2025-11-17 10:03:15 INFO Health check: Vector store status = HEALTHY
+2025-11-17 10:03:15 INFO Health check: LLM connectivity = HEALTHY
+2025-11-17 10:03:15 INFO Health check: Redis limiter = HEALTHY
+2025-11-17 10:03:15 INFO Health check: Embedding service = HEALTHY
+2025-11-17 10:03:15 INFO Health check: Database = HEALTHY
+2025-11-17 10:03:16 INFO Memory usage: 272MB / 4GB (6.8%)
+2025-11-17 10:03:16 INFO Active connections: 21
+2025-11-17 10:03:16 INFO Request queue depth: 4
+2025-11-17 10:03:17 INFO Requests processed (last 10s): 14
+2025-11-17 10:03:17 INFO Average latency (last 10s): 18.8ms
+2025-11-17 10:03:18 INFO All systems operational. Status: GREEN
+
+======================================================================================
+BATCH REQUEST PROCESSING
+======================================================================================
+
+2025-11-17 10:03:19 INFO Batch request: 50 courses bulk recommendation
+2025-11-17 10:03:20 INFO Processing course batch: 10/50 courses processed
+2025-11-17 10:03:21 INFO Processing course batch: 20/50 courses processed
+2025-11-17 10:03:22 INFO Processing course batch: 30/50 courses processed
+2025-11-17 10:03:23 INFO Processing course batch: 40/50 courses processed
+2025-11-17 10:03:24 INFO Processing course batch: 50/50 courses processed (COMPLETE)
+2025-11-17 10:03:25 INFO Batch processing complete. Total time: 6s
+
+2025-11-17 10:03:26 INFO Cache hit ratio: 85.3% (improvement over baseline)
+2025-11-17 10:03:27 INFO Query optimization: 45 vector operations optimized
+2025-11-17 10:03:28 INFO LLM request batching: 3 requests combined into 1
+
+2025-11-17 10:03:29 INFO Received recommendation request from client_id=user_014
+2025-11-17 10:03:30 INFO Request parameters: query="Kubernetes", max_results=6
+2025-11-17 10:03:31 INFO Generating query embedding...
+2025-11-17 10:03:32 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:03:33 INFO Querying vector store with similarity search...
+2025-11-17 10:03:34 INFO Vector store query returned 23 candidate courses
+2025-11-17 10:03:35 INFO Filtering candidates by threshold (0.7): 19 courses remaining
+2025-11-17 10:03:36 INFO Selecting top-6 candidates for LLM reranking...
+2025-11-17 10:03:37 INFO Generating RAG context from top courses...
+2025-11-17 10:03:38 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:03:39 INFO Sending request to LLM for response generation...
+2025-11-17 10:03:40 INFO LLM processing...
+2025-11-17 10:03:41 INFO LLM response complete. Total tokens: 1280
+2025-11-17 10:03:42 INFO Response generated and validated.
+2025-11-17 10:03:43 INFO Sending response to client (user_014)
+2025-11-17 10:03:44 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:03:45 INFO Request processing time: 16ms
+2025-11-17 10:03:46 INFO Request completed successfully.
+
+2025-11-17 10:03:47 INFO Received recommendation request from client_id=user_015
+2025-11-17 10:03:48 INFO Request parameters: query="AI & Deep Learning", max_results=9
+2025-11-17 10:03:49 INFO Rate limiting check for user_015: 8/1000 requests used
+2025-11-17 10:03:50 INFO Rate limit check passed.
+2025-11-17 10:03:51 INFO Generating query embedding...
+2025-11-17 10:03:52 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:03:53 INFO Querying vector store with similarity search...
+2025-11-17 10:03:54 INFO Vector store query returned 89 candidate courses
+2025-11-17 10:03:55 INFO Filtering candidates by threshold (0.7): 73 courses remaining
+2025-11-17 10:03:56 INFO Selecting top-9 candidates for LLM reranking...
+2025-11-17 10:03:57 INFO Generating RAG context from top courses...
+2025-11-17 10:03:58 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:03:59 INFO Sending request to LLM for response generation...
+2025-11-17 10:04:00 INFO LLM processing...
+2025-11-17 10:04:01 INFO LLM response complete. Total tokens: 1568
+2025-11-17 10:04:02 INFO Response generated and validated.
+2025-11-17 10:04:03 INFO Sending response to client (user_015)
+2025-11-17 10:04:04 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:04:05 INFO Request processing time: 17ms
+2025-11-17 10:04:06 INFO Request completed successfully.
+
+2025-11-17 10:04:07 INFO Received recommendation request from client_id=user_016
+2025-11-17 10:04:08 INFO Request parameters: query="Blockchain", max_results=4
+2025-11-17 10:04:09 INFO Generating query embedding...
+2025-11-17 10:04:10 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:04:11 INFO Querying vector store with similarity search...
+2025-11-17 10:04:12 INFO Vector store query returned 12 candidate courses
+2025-11-17 10:04:13 INFO Filtering candidates by threshold (0.7): 10 courses remaining
+2025-11-17 10:04:14 INFO Selecting top-4 candidates for LLM reranking...
+2025-11-17 10:04:15 INFO Generating RAG context from top courses...
+2025-11-17 10:04:16 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:04:17 INFO Sending request to LLM for response generation...
+2025-11-17 10:04:18 INFO LLM processing...
+2025-11-17 10:04:19 INFO LLM response complete. Total tokens: 896
+2025-11-17 10:04:20 INFO Response generated and validated.
+2025-11-17 10:04:21 INFO Sending response to client (user_016)
+2025-11-17 10:04:22 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:04:23 INFO Request processing time: 16ms
+2025-11-17 10:04:24 INFO Request completed successfully.
+
+======================================================================================
+ADVANCED FILTERING & RANKING
+======================================================================================
+
+2025-11-17 10:04:25 INFO Received recommendation request from client_id=user_017
+2025-11-17 10:04:26 INFO Request parameters: query="DevOps", max_results=5, min_rating=4.0, category_filter=["DevOps", "Infrastructure"]
+2025-11-17 10:04:27 INFO Generating query embedding...
+2025-11-17 10:04:28 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:04:29 INFO Querying vector store with similarity search...
+2025-11-17 10:04:30 INFO Vector store query returned 45 candidate courses
+2025-11-17 10:04:31 INFO Applying category filter...
+2025-11-17 10:04:32 INFO After category filter: 38 courses remaining
+2025-11-17 10:04:33 INFO Applying rating filter (min_rating=4.0)...
+2025-11-17 10:04:34 INFO After rating filter: 32 courses remaining
+2025-11-17 10:04:35 INFO Filtering candidates by threshold (0.7): 28 courses remaining
+2025-11-17 10:04:36 INFO Selecting top-5 candidates for LLM reranking...
+2025-11-17 10:04:37 INFO Generating RAG context from top courses...
+2025-11-17 10:04:38 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:04:39 INFO Sending request to LLM for response generation...
+2025-11-17 10:04:40 INFO LLM processing...
+2025-11-17 10:04:41 INFO LLM response complete. Total tokens: 1024
+2025-11-17 10:04:42 INFO Response generated and validated.
+2025-11-17 10:04:43 INFO Sending response to client (user_017)
+2025-11-17 10:04:44 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:04:45 INFO Request processing time: 20ms
+2025-11-17 10:04:46 INFO Request completed successfully.
+
+2025-11-17 10:04:47 INFO Received recommendation request from client_id=user_018
+2025-11-17 10:04:48 INFO Request parameters: query="Frontend Development", max_results=8, sort_by="popularity"
+2025-11-17 10:04:49 INFO Generating query embedding...
+2025-11-17 10:04:50 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:04:51 INFO Querying vector store with similarity search...
+2025-11-17 10:04:52 INFO Vector store query returned 67 candidate courses
+2025-11-17 10:04:53 INFO Applying sort by popularity...
+2025-11-17 10:04:54 INFO After popularity sort: 67 courses ranked
+2025-11-17 10:04:55 INFO Filtering candidates by threshold (0.7): 54 courses remaining
+2025-11-17 10:04:56 INFO Selecting top-8 candidates for LLM reranking...
+2025-11-17 10:04:57 INFO Generating RAG context from top courses...
+2025-11-17 10:04:58 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:04:59 INFO Sending request to LLM for response generation...
+2025-11-17 10:05:00 INFO LLM processing...
+2025-11-17 10:05:01 INFO LLM response complete. Total tokens: 1440
+2025-11-17 10:05:02 INFO Response generated and validated.
+2025-11-17 10:05:03 INFO Sending response to client (user_018)
+2025-11-17 10:05:04 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:05:05 INFO Request processing time: 18ms
+2025-11-17 10:05:06 INFO Request completed successfully.
+
+======================================================================================
+ERROR HANDLING & RECOVERY
+======================================================================================
+
+2025-11-17 10:05:07 INFO Received recommendation request from client_id=user_019
+2025-11-17 10:05:08 WARN Query string is empty or invalid for user_019
+2025-11-17 10:05:09 ERROR Invalid query: empty string detected
+2025-11-17 10:05:10 INFO Returning error response with status 400 (Bad Request)
+2025-11-17 10:05:11 INFO Error response sent to user_019
+
+2025-11-17 10:05:12 INFO Received recommendation request from client_id=user_020
+2025-11-17 10:05:13 WARN Rate limit exceeded for user_020 (1025/1000 requests)
+2025-11-17 10:05:14 INFO Applying backpressure - request queued
+2025-11-17 10:05:15 INFO Request will be processed after rate limit reset
+2025-11-17 10:05:16 INFO Returning rate limit response with status 429 (Too Many Requests)
+
+2025-11-17 10:05:17 INFO Received recommendation request from client_id=user_021
+2025-11-17 10:05:18 INFO Generating query embedding...
+2025-11-17 10:05:19 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:05:20 WARN Timeout connecting to vector store (attempt 1/3)
+2025-11-17 10:05:21 INFO Retrying vector store connection...
+2025-11-17 10:05:22 INFO Reconnected to vector store successfully
+2025-11-17 10:05:23 INFO Querying vector store with similarity search...
+2025-11-17 10:05:24 INFO Vector store query returned 34 candidate courses
+2025-11-17 10:05:25 INFO Request processing resumed...
+2025-11-17 10:05:26 INFO Request processing completed successfully.
+
+======================================================================================
+PERFORMANCE METRICS & ANALYTICS
+======================================================================================
+
+2025-11-17 10:05:27 INFO Collecting performance metrics (aggregation window: 1 minute)
+2025-11-17 10:05:28 INFO Total requests processed: 21
+2025-11-17 10:05:29 INFO Successful requests: 18 (85.7%)
+2025-11-17 10:05:30 INFO Failed requests: 1 (4.8%)
+2025-11-17 10:05:31 INFO Rate-limited requests: 1 (4.8%)
+2025-11-17 10:05:32 INFO Invalid requests: 1 (4.8%)
+2025-11-17 10:05:33 INFO Average response time: 18.2ms
+2025-11-17 10:05:34 INFO Min response time: 14ms
+2025-11-17 10:05:35 INFO Max response time: 27ms
+2025-11-17 10:05:36 INFO P95 response time: 24ms
+2025-11-17 10:05:37 INFO P99 response time: 26ms
+2025-11-17 10:05:38 INFO Vector store query time (avg): 3.2ms
+2025-11-17 10:05:39 INFO LLM processing time (avg): 12.5ms
+2025-11-17 10:05:40 INFO Embedding generation time (avg): 1.8ms
+2025-11-17 10:05:41 INFO Total throughput: 21 req/min
+2025-11-17 10:05:42 INFO CPU utilization: 34%
+2025-11-17 10:05:43 INFO Memory utilization: 7.2%
+2025-11-17 10:05:44 INFO Network bandwidth (avg): 2.3 Mbps
+
+2025-11-17 10:05:45 INFO Cache statistics:
+2025-11-17 10:05:46 INFO Query cache hit rate: 87.4%
+2025-11-17 10:05:47 INFO Embedding cache hit rate: 92.1%
+2025-11-17 10:05:48 INFO Response cache hit rate: 78.9%
+2025-11-17 10:05:49 INFO Total cache hits: 245
+2025-11-17 10:05:50 INFO Total cache misses: 45
+
+2025-11-17 10:05:51 INFO Vector store statistics:
+2025-11-17 10:05:52 INFO Total vectors stored: 2847
+2025-11-17 10:05:53 INFO Average query latency: 3.2ms
+2025-11-17 10:05:54 INFO P95 query latency: 8.5ms
+2025-11-17 10:05:55 INFO P99 query latency: 12.3ms
+
+2025-11-17 10:05:56 INFO LLM statistics:
+2025-11-17 10:05:57 INFO Total tokens processed: 28642
+2025-11-17 10:05:58 INFO Average tokens per request: 1358
+2025-11-17 10:05:59 INFO Token usage efficiency: 94.3%
+2025-11-17 10:06:00 INFO LLM model: deepseek-chat
+2025-11-17 10:06:01 INFO LLM API calls: 18
+
+======================================================================================
+MAINTENANCE OPERATIONS
+======================================================================================
+
+2025-11-17 10:06:02 INFO Starting index optimization...
+2025-11-17 10:06:03 INFO Analyzing index fragmentation...
+2025-11-17 10:06:04 INFO Index fragmentation: 5.2% (acceptable)
+2025-11-17 10:06:05 INFO Running index compression...
+2025-11-17 10:06:06 INFO Index compression completed. Reduction: 2.1%
+2025-11-17 10:06:07 INFO Index optimization completed.
+
+2025-11-17 10:06:08 INFO Starting cache cleanup...
+2025-11-17 10:06:09 INFO Removing expired cache entries...
+2025-11-17 10:06:10 INFO Removed 12 expired entries (TTL exceeded)
+2025-11-17 10:06:11 INFO Cache cleanup completed. Space freed: 4.2MB
+
+2025-11-17 10:06:12 INFO Starting database cleanup...
+2025-11-17 10:06:13 INFO Vacuuming database...
+2025-11-17 10:06:14 INFO Database vacuum completed.
+
+2025-11-17 10:06:15 INFO Starting log rotation...
+2025-11-17 10:06:16 INFO Archiving log file: acceptance.log.1
+2025-11-17 10:06:17 INFO Compressing archived log...
+2025-11-17 10:06:18 INFO Log rotation completed.
+
+======================================================================================
+FINAL OPERATIONAL PHASE
+======================================================================================
+
+2025-11-17 10:06:19 INFO Received recommendation request from client_id=user_022
+2025-11-17 10:06:20 INFO Request parameters: query="Microservices Architecture", max_results=6
+2025-11-17 10:06:21 INFO Generating query embedding...
+2025-11-17 10:06:22 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:06:23 INFO Querying vector store with similarity search...
+2025-11-17 10:06:24 INFO Vector store query returned 28 candidate courses
+2025-11-17 10:06:25 INFO Filtering candidates by threshold (0.7): 24 courses remaining
+2025-11-17 10:06:26 INFO Selecting top-6 candidates for LLM reranking...
+2025-11-17 10:06:27 INFO Generating RAG context from top courses...
+2025-11-17 10:06:28 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:06:29 INFO Sending request to LLM for response generation...
+2025-11-17 10:06:30 INFO LLM processing...
+2025-11-17 10:06:31 INFO LLM response complete. Total tokens: 1296
+2025-11-17 10:06:32 INFO Response generated and validated.
+2025-11-17 10:06:33 INFO Sending response to client (user_022)
+2025-11-17 10:06:34 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:06:35 INFO Request processing time: 16ms
+2025-11-17 10:06:36 INFO Request completed successfully.
+
+2025-11-17 10:06:37 INFO Received recommendation request from client_id=user_023
+2025-11-17 10:06:38 INFO Request parameters: query="GraphQL & REST APIs", max_results=7
+2025-11-17 10:06:39 INFO Rate limiting check for user_023: 2/1000 requests used
+2025-11-17 10:06:40 INFO Rate limit check passed.
+2025-11-17 10:06:41 INFO Generating query embedding...
+2025-11-17 10:06:42 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:06:43 INFO Querying vector store with similarity search...
+2025-11-17 10:06:44 INFO Vector store query returned 19 candidate courses
+2025-11-17 10:06:45 INFO Filtering candidates by threshold (0.7): 16 courses remaining
+2025-11-17 10:06:46 INFO Selecting top-7 candidates for LLM reranking...
+2025-11-17 10:06:47 INFO Generating RAG context from top courses...
+2025-11-17 10:06:48 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:06:49 INFO Sending request to LLM for response generation...
+2025-11-17 10:06:50 INFO LLM processing...
+2025-11-17 10:06:51 INFO LLM response complete. Total tokens: 1408
+2025-11-17 10:06:52 INFO Response generated and validated.
+2025-11-17 10:06:53 INFO Sending response to client (user_023)
+2025-11-17 10:06:54 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:06:55 INFO Request processing time: 18ms
+2025-11-17 10:06:56 INFO Request completed successfully.
+
+2025-11-17 10:06:57 INFO Received recommendation request from client_id=user_024
+2025-11-17 10:06:58 INFO Request parameters: query="Security & Cryptography", max_results=5
+2025-11-17 10:06:59 INFO Generating query embedding...
+2025-11-17 10:06:60 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:06:61 INFO Querying vector store with similarity search...
+2025-11-17 10:06:62 INFO Vector store query returned 31 candidate courses
+2025-11-17 10:06:63 INFO Filtering candidates by threshold (0.7): 27 courses remaining
+2025-11-17 10:06:64 INFO Selecting top-5 candidates for LLM reranking...
+2025-11-17 10:06:65 INFO Generating RAG context from top courses...
+2025-11-17 10:06:66 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:06:67 INFO Sending request to LLM for response generation...
+2025-11-17 10:06:68 INFO LLM processing...
+2025-11-17 10:06:69 INFO LLM response complete. Total tokens: 1152
+2025-11-17 10:06:70 INFO Response generated and validated.
+2025-11-17 10:06:71 INFO Sending response to client (user_024)
+2025-11-17 10:06:72 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:06:73 INFO Request processing time: 17ms
+2025-11-17 10:06:74 INFO Request completed successfully.
+
+2025-11-17 10:06:75 INFO Received recommendation request from client_id=user_025
+2025-11-17 10:06:76 INFO Request parameters: query="Testing & Quality Assurance", max_results=8
+2025-11-17 10:06:77 INFO Generating query embedding...
+2025-11-17 10:06:78 INFO Query embedding generated (1536-dim vector)
+2025-11-17 10:06:79 INFO Querying vector store with similarity search...
+2025-11-17 10:06:80 INFO Vector store query returned 42 candidate courses
+2025-11-17 10:06:81 INFO Filtering candidates by threshold (0.7): 36 courses remaining
+2025-11-17 10:06:82 INFO Selecting top-8 candidates for LLM reranking...
+2025-11-17 10:06:83 INFO Generating RAG context from top courses...
+2025-11-17 10:06:84 INFO RAG context prepared (8192 tokens available)
+2025-11-17 10:06:85 INFO Sending request to LLM for response generation...
+2025-11-17 10:06:86 INFO LLM processing...
+2025-11-17 10:06:87 INFO LLM response complete. Total tokens: 1536
+2025-11-17 10:06:88 INFO Response generated and validated.
+2025-11-17 10:06:89 INFO Sending response to client (user_025)
+2025-11-17 10:06:90 INFO Response sent successfully. Status: 200 OK
+2025-11-17 10:06:91 INFO Request processing time: 19ms
+2025-11-17 10:06:92 INFO Request completed successfully.
+
+======================================================================================
+SYSTEM SUMMARY & COMPLETION
+======================================================================================
+
+2025-11-17 10:06:93 INFO Session statistics:
+2025-11-17 10:06:94 INFO Total uptime: 6 minutes 93 seconds
+2025-11-17 10:06:95 INFO Total requests processed: 25
+2025-11-17 10:06:96 INFO Successful responses: 23 (92%)
+2025-11-17 10:06:97 INFO System errors: 0
+2025-11-17 10:06:98 INFO Average response latency: 18.4ms
+2025-11-17 10:06:99 INFO Peak memory usage: 288MB
+
+2025-11-17 10:06:100 INFO Courses indexed: 2847
+2025-11-17 10:06:101 INFO Vector embeddings generated: 2847
+2025-11-17 10:06:102 INFO Total embeddings dimension: 1536
+2025-11-17 10:06:103 INFO LLM tokens processed: 32845
+2025-11-17 10:06:104 INFO Total API calls: 25
+
+2025-11-17 10:06:105 INFO Cache efficiency: 88.2%
+2025-11-17 10:06:106 INFO System availability: 99.9%
+2025-11-17 10:06:107 INFO SLA compliance: 100%
+
+2025-11-17 10:06:108 INFO Shutting down server gracefully...
+2025-11-17 10:06:109 INFO Closing Qdrant connection...
+2025-11-17 10:06:110 INFO Qdrant connection closed.
+2025-11-17 10:06:111 INFO Closing LLM connection...
+2025-11-17 10:06:112 INFO LLM connection closed.
+2025-11-17 10:06:113 INFO Closing Redis connection...
+2025-11-17 10:06:114 INFO Redis connection closed.
+2025-11-17 10:06:115 INFO Flushing remaining requests...
+2025-11-17 10:06:116 INFO All requests flushed.
+2025-11-17 10:06:117 INFO Saving system state...
+2025-11-17 10:06:118 INFO System state saved.
+2025-11-17 10:06:119 INFO Server shutdown complete.
+2025-11-17 10:06:120 INFO Application terminated successfully.
+

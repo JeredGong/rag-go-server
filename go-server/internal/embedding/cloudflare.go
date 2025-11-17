@@ -30,7 +30,10 @@ func NewCloudflareClient(endpoint string) *CloudflareClient {
 
 func (c *CloudflareClient) Embed(ctx context.Context, text string) ([]float32, error) {
 	body := map[string]interface{}{"text": text}
-	jsonData, _ := json.Marshal(body)
+	jsonData, err := json.Marshal(body)
+	if err != nil {
+		return nil, fmt.Errorf("序列化请求失败: %w", err)
+	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.Endpoint, bytes.NewBuffer(jsonData))
 	if err != nil {
@@ -40,9 +43,14 @@ func (c *CloudflareClient) Embed(ctx context.Context, text string) ([]float32, e
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("HTTP 请求失败: %w", err)
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("embedding API 返回错误状态码 %d: %s", resp.StatusCode, string(body))
+	}
 
 	var result struct {
 		Embedding struct {
@@ -50,9 +58,12 @@ func (c *CloudflareClient) Embed(ctx context.Context, text string) ([]float32, e
 		} `json:"embedding"`
 	}
 
-	data, _ := io.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("读取响应体失败: %w", err)
+	}
 	if err := json.Unmarshal(data, &result); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("解析 embedding 响应失败: %w", err)
 	}
 
 	if len(result.Embedding.Data) == 0 || len(result.Embedding.Data[0]) == 0 {

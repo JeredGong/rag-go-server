@@ -3,6 +3,7 @@ package config
 
 import (
 	"fmt"
+	"net"
 	"os"
 )
 
@@ -39,6 +40,8 @@ func Load() (*Config, error) {
 
 	if cfg.ListenAddr == "" {
 		cfg.ListenAddr = "127.0.0.1:8091"
+	} else if !isValidAddr(cfg.ListenAddr) {
+		return nil, fmt.Errorf("无效的 LISTEN_ADDR 格式: %s", cfg.ListenAddr)
 	}
 
 	// ===== Redis 默认值增强 =====
@@ -63,4 +66,16 @@ func Load() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+// isValidAddr 验证地址格式是否有效
+func isValidAddr(addr string) bool {
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return false
+	}
+	if host == "" || port == "" {
+		return false
+	}
+	return true
 }
